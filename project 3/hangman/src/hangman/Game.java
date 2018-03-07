@@ -18,6 +18,7 @@ public class Game {
 	private String[] letterAndPosArray;
 	private String[] words;
 	private int moves;
+	private boolean isStarted;
 	private int index;
 	private final ReadOnlyObjectWrapper<GameStatus> gameStatus;
 	private ObjectProperty<Boolean> gameState = new ReadOnlyObjectWrapper<Boolean>();
@@ -70,6 +71,7 @@ public class Game {
 		prepTmpAnswer();
 		prepLetterAndPosArray();
 		moves = 0;
+		isStarted = false;
 
 		gameState.setValue(false); // initial state
 		createGameStatusBinding();
@@ -89,7 +91,7 @@ public class Game {
 					return check;
 				}
 
-				if(tmpAnswer.trim().length() == 0){
+				if(tmpAnswer.trim().length() == 0 && !isStarted){
 					log("new game");
 					return GameStatus.OPEN;
 				}
@@ -160,6 +162,11 @@ public class Game {
 	private static void drawHangmanFrame() {}
 
 	public void makeMove(String letter) {
+		if (!isStarted) {
+			isStarted = true;
+			log("in makeMove: Game Started. First guess made.");
+		}
+
 		log("\nin makeMove: " + letter);
 		index = update(letter);
 		// this will toggle the state of the game
