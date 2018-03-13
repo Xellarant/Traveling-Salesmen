@@ -324,14 +324,14 @@ public class GameController {
 	@FXML
 	//reset everything and restart game
 	private void newHangman(){
+		if(game.getMove() == 7) {
+			path.stop();
+		}
 		game.reset();
 		board.getChildren().clear();
 		drawCount= new ArrayList<Integer>();
 		textField.clear();
 		drawGallows();
-		path.stop();
-//		addTextBoxListener();
-//		setUpStatusLabelBindings();
 		statusLabel.textProperty().bind(Bindings.format("%s", game.gameStatusProperty()));
 		enterALetterLabel.textProperty().bind(Bindings.format("%s", "Enter a letter: "));
 		targetWord.textProperty().bind(Bindings.format("%s", "Target: " + game.getCurrentAnswer()));
