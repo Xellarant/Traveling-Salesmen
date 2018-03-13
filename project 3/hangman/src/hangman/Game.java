@@ -1,5 +1,18 @@
 package hangman;
 
+/*
+ * COMP585 Spring 2018
+ * Project 3
+ * Group 0
+ * Kyle Rickets, Rallante Hunt, Xiaohan Yang, Yixin Chen
+ * 
+ * Game Class
+ * perform the game
+ * 
+ * Modified by Yixin Chen
+ * Mar 12, 2018
+ */
+
 import javafx.beans.Observable;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.ObjectProperty;
@@ -8,31 +21,39 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Game {
 
-	private String answer;
-	private String tmpAnswer;
+	private String answer; //target word
+	private String tmpAnswer; //temp answer by user
 	private String[] letterAndPosArray;
-	private String[] words;
-	private int moves;
-	private boolean isStarted;
+	private static String currentInput; //current input by user
+	private List<String> allInput; //list of all inputs by user
+	private List<String> missedLetters; //missed letter
+	boolean repeat = false; //whether user has input a repeat letter
+	boolean won, gameOver; //end game status
+//	private String[] words;
+	private int moves; 
 	private int index;
 	private final ReadOnlyObjectWrapper<GameStatus> gameStatus;
 	private ObjectProperty<Boolean> gameState = new ReadOnlyObjectWrapper<Boolean>();
+	boolean isPlaying; //whether game has started
 
 	public enum GameStatus {
 		GAME_OVER {
 			@Override
 			public String toString() {
-				return "Game over!";
+				return "Game over! Press Enter to try again.";
 			}
 		},
 		BAD_GUESS {
 			@Override
-			public String toString() { return "Bad guess..."; }
+			public String toString() { 
+				return "Bad guess..."; 
+			}
 		},
 		GOOD_GUESS {
 			@Override
@@ -43,7 +64,7 @@ public class Game {
 		WON {
 			@Override
 			public String toString() {
-				return "You won!";
+				return "You won! Press Enter to start new game.";
 			}
 		},
 		OPEN {
@@ -51,10 +72,16 @@ public class Game {
 			public String toString() {
 				return "Game on, let's go!";
 			}
+		},
+		REPEAT{
+			@Override
+			public String toString() {
+				return currentInput.toUpperCase() +" has already been used! Try again.";
+			}
 		}
 	}
 
-	public Game() {
+	public Game(){
 		gameStatus = new ReadOnlyObjectWrapper<GameStatus>(this, "gameStatus", GameStatus.OPEN);
 		gameStatus.addListener(new ChangeListener<GameStatus>() {
 			@Override
@@ -67,16 +94,29 @@ public class Game {
 			}
 
 		});
+		startGame();
+	}
+	
+	//start a new game, set everything to its default value, generate new target word
+	public void startGame(){
+		isPlaying = false;
+		won = gameOver = false;
+		repeat = false;
+		
+		allInput = new ArrayList<String>();
+		missedLetters = new ArrayList<String>();
+		currentInput = "";
+		
 		setRandomWord();
 		prepTmpAnswer();
 		prepLetterAndPosArray();
 		moves = 0;
-		isStarted = false;
 
 		gameState.setValue(false); // initial state
 		createGameStatusBinding();
 	}
-
+	
+	//game status
 	private void createGameStatusBinding() {
 		List<Observable> allObservableThings = new ArrayList<>();
 		ObjectBinding<GameStatus> gameStatusBinding = new ObjectBinding<GameStatus>() {
@@ -86,24 +126,33 @@ public class Game {
 			@Override
 			public GameStatus computeValue() {
 				log("in computeValue");
-				GameStatus check = checkForWinner(index);
-				if(check != null ) {
-					return check;
-				}
-
-				if(tmpAnswer.trim().length() == 0 && !isStarted){
-					log("new game");
-					return GameStatus.OPEN;
-				}
-				else if (index != -1){
-					log("good guess");
-					return GameStatus.GOOD_GUESS;
+				if(repeat) {
+					log(currentInput.toUpperCase() + " has already been used! Try again.");
+					return GameStatus.REPEAT;
 				}
 				else {
-					moves++;
-					log("bad guess");
-					return GameStatus.BAD_GUESS;
-					//printHangman();
+					GameStatus check = checkForWinner(index);
+					if(check != null ) {
+						return check;
+					}
+					if(tmpAnswer.trim().length() == 0 && !isPlaying){
+						log("new game");
+						return GameStatus.OPEN;
+					}
+					else if (index != -1){
+						log("good guess");
+						return GameStatus.GOOD_GUESS;
+					}
+					else {
+						moves++;
+						check = checkForWinner(index);
+						if(check != null ) {
+							return check;
+						}
+						log("moves: " + moves);
+						log("bad guess");
+						return GameStatus.BAD_GUESS;
+					}
 				}
 			}
 		};
@@ -113,15 +162,19 @@ public class Game {
 	public ReadOnlyObjectProperty<GameStatus> gameStatusProperty() {
 		return gameStatus.getReadOnlyProperty();
 	}
+	
 	public GameStatus getGameStatus() {
 		return gameStatus.get();
 	}
 
-	private void setRandomWord() {
-		//int idx = (int) (Math.random() * words.length);
-		answer = "apple";//words[idx].trim(); // remove new line character
+	//get a random word from a file
+	private void setRandomWord(){
+		WordGenerator words = new WordGenerator("dictionary.txt");
+		answer = words.get().trim().toLowerCase();
+		System.out.println(answer);
 	}
-
+	
+	//intial the temp answer using space
 	private void prepTmpAnswer() {
 		StringBuilder sb = new StringBuilder();
 		for(int i = 0; i < answer.length(); i++) {
@@ -129,72 +182,159 @@ public class Game {
 		}
 		tmpAnswer = sb.toString();
 	}
-
+	
+	//store the target word letter by letter in letterAndPosArray
 	private void prepLetterAndPosArray() {
 		letterAndPosArray = new String[answer.length()];
 		for(int i = 0; i < answer.length(); i++) {
 			letterAndPosArray[i] = answer.substring(i,i+1);
 		}
 	}
-
+	
+	//check if the target word contains the input letter, if yes, return its index and delete the related letter in letterAndPosArray
 	private int getValidIndex(String input) {
 		int index = -1;
 		for(int i = 0; i < letterAndPosArray.length; i++) {
 			if(letterAndPosArray[i].equals(input)) {
 				index = i;
-				letterAndPosArray[i] = "";
+				letterAndPosArray[i] = "";			
 				break;
+			}				
+		}
+		return index;
+	}
+	
+	//count the number of letters in target word that equals to the input letter, and return the count 
+	private int getLetterCount(String input) {
+		int count = 0;
+		for(int i = 0; i < letterAndPosArray.length; i++) {
+			if(letterAndPosArray[i].equals(input)) {
+				count++;
+			}
+		}
+		if(count == 0) {
+			missedLetters.add(input);
+			log("missed: " + input);
+		}
+		return count;		
+	}
+
+	//update temp answer with current input letter by user 
+	private int update(String input) {
+		int count = getLetterCount(input);
+		int index = -1;
+		//if there are duplicate letters in the target word, update all the letters
+		if(count > 0){
+			for(int i = 0; i < count; i++) {
+				index = getValidIndex(input);
+				if(index != -1) {
+					StringBuilder sb = new StringBuilder(tmpAnswer);
+					sb.setCharAt(index, input.charAt(0));
+					tmpAnswer = sb.toString();
+				}
 			}
 		}
 		return index;
 	}
-
-	private int update(String input) {
-		int index = getValidIndex(input);
-		if(index != -1) {
-			StringBuilder sb = new StringBuilder(tmpAnswer);
-			sb.setCharAt(index, input.charAt(0));
-			tmpAnswer = sb.toString();
+	
+	//get current answer by user, to display in game status label
+	public String getCurrentAnswer() {
+		StringBuilder sb = new StringBuilder(tmpAnswer);
+		for(int i = 0; i < tmpAnswer.length(); i++) {
+			if(sb.charAt(i) == ' ') {
+				sb.setCharAt(i, '*');
+			}
 		}
-		return index;
+		return sb.toString();
 	}
 
-	private static void drawHangmanFrame() {}
-
+	//deal with the input letter
 	public void makeMove(String letter) {
-		if (!isStarted) {
-			isStarted = true;
-			log("in makeMove: Game Started. First guess made.");
-		}
-
 		log("\nin makeMove: " + letter);
-		index = update(letter);
-		// this will toggle the state of the game
-		gameState.setValue(!gameState.getValue());
+		//if already won or lost a game, do nothing with input letter
+		if(won || gameOver) {}
+		else {
+			isPlaying = true;
+			currentInput = letter;
+			//check if the input letter is a duplicate, if not, set repeat to false, update current answer; 
+			//if yes, set repeat to true, update game status labels, do nothing with current answer
+			if(!allInput.contains(currentInput)) {
+				allInput.add(currentInput);
+				repeat = false;
+				index = update(letter);
+				// this will toggle the state of the game
+				gameState.setValue(!gameState.getValue());
+			}
+			else {
+				repeat = true;
+				gameState.setValue(!gameState.getValue());
+			}
+		}
 	}
-
-	public void reset() {}
-
+	
+	//reset the game
+	public void reset(){
+		startGame();
+	}
+	
+	//number of moves
 	private int numOfTries() {
-		return 5; // TODO, fix me
+		return 7; // TODO, fix me
 	}
 
 	public static void log(String s) {
 		System.out.println(s);
 	}
-
+	
+	//check if the user is still in game, or won a game, or lost a game
 	private GameStatus checkForWinner(int status) {
 		log("in checkForWinner");
+		//temp answer equals to answer, win
 		if(tmpAnswer.equals(answer)) {
 			log("won");
+			isPlaying = false;
+			won = true;
 			return GameStatus.WON;
 		}
+		//run out of moves, lose
 		else if(moves == numOfTries()) {
 			log("game over");
+			isPlaying = false;
+			gameOver = true;
 			return GameStatus.GAME_OVER;
 		}
+		//still in game, do nothing
 		else {
 			return null;
 		}
+	}
+	
+	//get moves
+	public int getMove() {
+		return moves;
+	}
+	
+	//get answer
+	public String getAnswer() {
+		return answer;
+	}
+	
+	//get missed letters
+	public String getMissedLetters() {
+		String ret = "";
+		for(String s : missedLetters) {
+			ret += s;
+		}
+		return ret;
+	}
+	
+	//check user is playing game or not
+	public boolean getPlayingStatus() {
+		return isPlaying;
+	}
+	
+	//get number of left moves
+	public int getRemainMoves() {
+		return numOfTries() - moves;
 	}
 }

@@ -1,10 +1,26 @@
 package hangman;
 
+/*
+ * COMP585 Spring 2018
+ * Project 3
+ * Group 0
+ * Kyle Rickets, Rallante Hunt, Xiaohan Yang, Yixin Chen
+ * 
+ * Hangman game
+ * The user guesses a word by entering one letter at a time. 
+ * If the user misses seven times, a hanging man hangs. 
+ * Once a word is finished, the user can press the Enter key to start a new game.
+ * 
+ * Modified by Yixin Chen
+ * Mar 12, 2018
+ */
+
 import java.io.IOException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 public class Hangman extends Application {
@@ -15,9 +31,10 @@ public class Hangman extends Application {
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("Hangman.fxml"));
 		loader.setController(new GameController(game));
 		Parent root = loader.load();
-		Scene scene = new Scene(root, 500, 800);
+		Scene scene = new Scene(root, 500, 580);
 		scene.getStylesheets().add(getClass().getResource("Hangman.css").toExternalForm());
 		primaryStage.setScene(scene);
+		primaryStage.getIcons().add(new Image("file:icon.png"));
 		primaryStage.show();
 	}
 
