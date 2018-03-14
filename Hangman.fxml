@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ 
+/*
+ * COMP585 Spring 2018
+ * Project 3
+ * Group 0
+ * Kyle Rickets, Rallante Hunt, Xiaohan Yang, Yixin Chen
+ * 
+ * XML file
+ * set menu and layout
+ * 
+ * Modified by Yixin Chen
+ * Mar 12, 2018
+ * added box by xiaohan yang
+ * Mar 14, 2018
+ */
+
+ -->
+
+
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Label?>
+<?import java.lang.String?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
+
+
+<VBox xmlns:fx="http://javafx.com/fxml">	
+	<MenuBar>
+		<Menu text="Game">
+			<MenuItem text="Hangman" onAction="#newHangman"/>
+			<MenuItem text="Quit" onAction="#quit"/>
+		</Menu>
+	</MenuBar>
+	
+	
+	<VBox>
+		<Pane fx:id="board">
+			<styleClass>
+				<String fx:value="hangman-board"/>
+			</styleClass>
+		</Pane>
+	</VBox>
+
+	<VBox>		
+		<styleClass>
+			<String fx:value="bg1"/>
+		</styleClass>		
+				
+		<Label fx:id="missedLetters">
+			<styleClass>
+				<String fx:value="status1"/>
+			</styleClass>
+		</Label>
+				
+		<Label fx:id="movesLeft">			
+			<styleClass>
+				<String fx:value="status1"/>
+			</styleClass>	
+		</Label>				
+	</VBox>
+	
+	<VBox>	
+		<styleClass>
+			<String fx:value="bg2"/>
+		</styleClass>
+					
+		<Label fx:id="statusLabel">
+			<styleClass>
+				<String fx:value="status2"/>
+			</styleClass>
+		</Label>
+			
+		<Label fx:id="targetWord">
+			<styleClass>
+				<String fx:value="status2"/>
+			</styleClass>			
+		</Label>
+		<GridPane>
+			<Label fx:id="enterALetterLabel" GridPane.columnIndex="0">
+		 		<styleClass>
+					<String fx:value="status2"/>
+				</styleClass>
+			</Label>
+				
+			<TextField fx:id="textField" GridPane.columnIndex="1">
+				<styleClass>
+					<String fx:value="text"/>
+				</styleClass>
+			</TextField>
+		</GridPane>
+	</VBox>			
+</VBox>
