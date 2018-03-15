@@ -332,10 +332,7 @@ public class GameController {
 		drawCount= new ArrayList<Integer>();
 		textField.clear();
 		drawGallows();
-		statusLabel.textProperty().bind(Bindings.format("%s", game.gameStatusProperty()));
-		enterALetterLabel.textProperty().bind(Bindings.format("%s", "Enter a letter: "));
-		targetWord.textProperty().bind(Bindings.format("%s", "Target: " + game.getCurrentAnswer()));
-		missedLetters.textProperty().bind(Bindings.format("%s", "Missed Letters: "));		
+		setUpStatusLabelBindings();	
 	}
 
 	@FXML
