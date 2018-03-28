@@ -9,8 +9,7 @@ package hangman;
  * Game Class
  * perform the game
  * 
- * Modified by Yixin Chen
- * Mar 12, 2018
+ * 
  */
 
 import javafx.beans.Observable;
@@ -21,7 +20,6 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,13 +33,13 @@ public class Game {
 	private List<String> missedLetters; //missed letter
 	boolean repeat = false; //whether user has input a repeat letter
 	boolean won, gameOver; //end game status
-//	private String[] words;
 	private int moves; 
 	private int index;
 	private final ReadOnlyObjectWrapper<GameStatus> gameStatus;
 	private ObjectProperty<Boolean> gameState = new ReadOnlyObjectWrapper<Boolean>();
 	boolean isPlaying; //whether game has started
-
+	
+	//modified
 	public enum GameStatus {
 		GAME_OVER {
 			@Override
@@ -73,6 +71,7 @@ public class Game {
 				return "Game on, let's go!";
 			}
 		},
+		//new, repeat status
 		REPEAT{
 			@Override
 			public String toString() {
@@ -80,7 +79,8 @@ public class Game {
 			}
 		}
 	}
-
+	
+	//modified
 	public Game(){
 		gameStatus = new ReadOnlyObjectWrapper<GameStatus>(this, "gameStatus", GameStatus.OPEN);
 		gameStatus.addListener(new ChangeListener<GameStatus>() {
@@ -97,6 +97,7 @@ public class Game {
 		startGame();
 	}
 	
+	//new method, part from Game()
 	//start a new game, set everything to its default value, generate new target word
 	public void startGame(){
 		isPlaying = false;
@@ -116,6 +117,7 @@ public class Game {
 		createGameStatusBinding();
 	}
 	
+	//modified
 	//game status
 	private void createGameStatusBinding() {
 		List<Observable> allObservableThings = new ArrayList<>();
@@ -166,7 +168,8 @@ public class Game {
 	public GameStatus getGameStatus() {
 		return gameStatus.get();
 	}
-
+	
+	//modified
 	//get a random word from a file
 	private void setRandomWord(){
 		WordGenerator words = new WordGenerator("dictionary.txt");
@@ -174,7 +177,7 @@ public class Game {
 		System.out.println(answer);
 	}
 	
-	//intial the temp answer using space
+	//initial the temp answer using space
 	private void prepTmpAnswer() {
 		StringBuilder sb = new StringBuilder();
 		for(int i = 0; i < answer.length(); i++) {
@@ -204,6 +207,7 @@ public class Game {
 		return index;
 	}
 	
+	//modified
 	//count the number of letters in target word that equals to the input letter, and return the count 
 	private int getLetterCount(String input) {
 		int count = 0;
@@ -218,7 +222,8 @@ public class Game {
 		}
 		return count;		
 	}
-
+	
+	//modified
 	//update temp answer with current input letter by user 
 	private int update(String input) {
 		int count = getLetterCount(input);
@@ -237,17 +242,26 @@ public class Game {
 		return index;
 	}
 	
+	//modified
 	//get current answer by user, to display in game status label
 	public String getCurrentAnswer() {
 		StringBuilder sb = new StringBuilder(tmpAnswer);
 		for(int i = 0; i < tmpAnswer.length(); i++) {
 			if(sb.charAt(i) == ' ') {
-				sb.setCharAt(i, '*');
+				sb.setCharAt(i, '_');
+			}
+		}
+		int count = 0;
+		for(int i = 0; count < tmpAnswer.length(); i++, count++) {
+			if(sb.charAt(i) == '_' ) {
+				sb.insert(i+1, ' ');
+				i++;
 			}
 		}
 		return sb.toString();
 	}
-
+	
+	//modified
 	//deal with the input letter
 	public void makeMove(String letter) {
 		log("\nin makeMove: " + letter);
@@ -277,6 +291,7 @@ public class Game {
 		startGame();
 	}
 	
+	//modified
 	//number of moves
 	private int numOfTries() {
 		return 7; // TODO, fix me
@@ -286,6 +301,7 @@ public class Game {
 		System.out.println(s);
 	}
 	
+	//modified
 	//check if the user is still in game, or won a game, or lost a game
 	private GameStatus checkForWinner(int status) {
 		log("in checkForWinner");
@@ -309,6 +325,7 @@ public class Game {
 		}
 	}
 	
+	//new methods
 	//get moves
 	public int getMove() {
 		return moves;
@@ -333,8 +350,30 @@ public class Game {
 		return isPlaying;
 	}
 	
+	//check whether game has ended
+	public boolean gameEnd() {
+		return won||gameOver;
+	}
+	
 	//get number of left moves
 	public int getRemainMoves() {
 		return numOfTries() - moves;
+	}
+	
+	//new method
+	//give the first unveiled letter
+	public String hint() {
+		if(won || gameOver) {
+			return new String();
+			}
+		String ret = new String();
+		StringBuilder sb = new StringBuilder(tmpAnswer);
+		for(int i = 0; i < tmpAnswer.length(); i++) {
+			if(sb.charAt(i) == ' ') {
+				ret = answer.substring(i,i+1);
+				break;
+			}
+		}
+		return ret;
 	}
 }

@@ -1,51 +1,105 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--
+ 
+/*
+ * COMP585 Spring 2018
+ * Project 3
+ * Group 0
+ * Kyle Rickets, Rallante Hunt, Xiaohan Yang, Yixin Chen
+ * 
+ * XML file
+ * set menu and layout
+ * 
+ */
+ -->
+
+
+
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.Label?>
 <?import java.lang.String?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml">
+
+<VBox xmlns:fx="http://javafx.com/fxml">	
+	<MenuBar>
+		<Menu text="Game">
+			<MenuItem text="Hangman" onAction="#newHangman"/>
+			<MenuItem text="Quit" onAction="#quit"/>
+		</Menu>
+		
+<!-- new menu button -->		
+		<Menu text="Hint">
+			<MenuItem text="Hint" onAction="#hint"/>
+		</Menu>
+	</MenuBar>	
 	
-	<top>
-		<MenuBar>
-			<Menu text="Game">
-				<MenuItem text="Hangman" onAction="#newHangman"/>
-				<MenuItem text="Quit" onAction="#quit"/>
-			</Menu>
-		</MenuBar>
-	</top>
-
-	<center>
-		<VBox fx:id="board">
+	<VBox>
+		<Pane fx:id="board">
 			<styleClass>
 				<String fx:value="hangman-board"/>
 			</styleClass>
-		</VBox>
-	</center>
+		</Pane>
+	</VBox>
+
+<!-- new VBox -->
+	<VBox>		
+		<styleClass>
+			<String fx:value="bg1"/>
+		</styleClass>		
+		
+<!-- new labels -->		
+		<Label fx:id="targetWord">
+			<styleClass>
+				<String fx:value="status1"/>
+			</styleClass>			
+		</Label>	
+				
+		<Label fx:id="missedLetters">
+			<styleClass>
+				<String fx:value="status1"/>
+			</styleClass>
+		</Label>		
+	</VBox>
 	
-	<bottom>
-		<VBox>
-			<Label fx:id="statusLabel">
-				<styleClass>
-					<String fx:value="status"/>
+	<VBox>	
+		<styleClass>
+			<String fx:value="bg2"/>
+		</styleClass>
+					
+		<Label fx:id="statusLabel">
+			<styleClass>
+				<String fx:value="status2"/>
+			</styleClass>
+		</Label>
+		
+		<Label fx:id="movesLeft">			
+			<styleClass>
+				<String fx:value="status2"/>
+			</styleClass>	
+		</Label>
+			
+
+		<GridPane>
+			<Label fx:id="enterALetterLabel" GridPane.columnIndex="0">
+		 		<styleClass>
+					<String fx:value="status2"/>
 				</styleClass>
 			</Label>
-			<GridPane>
-				<Label fx:id="enterALetterLabel" GridPane.columnIndex="0">
-					<styleClass>
-						<String fx:value="status"/>
-					</styleClass>
-				</Label>
-				<TextField fx:id="textField" GridPane.columnIndex="1">
-				</TextField>
-			</GridPane>
-		</VBox>
-	</bottom>
-
-</BorderPane>
+				
+			<TextField fx:id="textField" GridPane.columnIndex="1">
+				<styleClass>
+					<String fx:value="text"/>
+				</styleClass>
+			</TextField>
+		</GridPane>
+	</VBox>			
+</VBox>

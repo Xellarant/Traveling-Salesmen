@@ -9,8 +9,6 @@ package hangman;
  * WordGenerator Class
  * Read a file, and randomly select a word in the file
  * 
- * Created by Yixin Chen
- * Mar 12, 2018
  */
 
 import java.io.File;

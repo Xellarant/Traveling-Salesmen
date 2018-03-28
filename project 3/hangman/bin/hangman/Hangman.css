@@ -1,9 +1,21 @@
+/*
+ * COMP585 Spring 2018
+ * Project 3
+ * Group 0
+ * Kyle Rickets, Rallante Hunt, Xiaohan Yang, Yixin Chen
+ * 
+ * CSS styles
+ * 
+ */
+
+
 .root {
 	-fx-font-family: "Comic Sans MS" ;	
-	-fx-background-color: darkcyan ;
+	
 }
+/*changed colors */
 .hangman-board {
-	-fx-background-color: linen ;
+	-fx-background-color:linen ;
 	-fx-padding: 15px ;
 	-fx-alignment: center ;
 }
@@ -21,7 +33,26 @@
 	-fx-font-size: 128pt ;
 }
 
-.status {
-	-fx-font-size: 24pt ;
-	-fx-text-fill: mintcream ;
+/*changed colors */
+.bg2 {
+	-fx-background-color: LightGreen;
+	-fx-padding: 5;
 }
+
+.bg1 {
+	-fx-background-color:CornflowerBlue;
+	-fx-padding: 5;
+
+}
+
+/*new status style */
+.status1 {
+	-fx-font-size: 17pt ;
+	-fx-text-fill: Bisque;
+	
+}
+.status2 {
+	-fx-font-size: 17pt ;
+	-fx-text-fill: navy;
+}
+

@@ -9,8 +9,7 @@ package hangman;
  * Game Controller
  * take inputs, set labels, draw gallows and hanging man
  * 
- * Modified by Yixin Chen
- * Mar 12, 2018
+ * 
  */
 
 import java.util.ArrayList;
@@ -29,6 +28,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.input.KeyCode;
 
 import javafx.scene.layout.Pane;
@@ -36,6 +36,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.util.Duration;
 
 public class GameController {
@@ -47,8 +49,9 @@ public class GameController {
     private Circle head, headHang;
     private Line leftArm, leftArmHang, rightArm, rightArmHang, body, leftLeg, rightLeg;
 	private final int WIDTH = 500, HEIGHT = 400;
-	PathTransition path;
-	List<Integer> drawCount= new ArrayList<Integer>();
+	private PathTransition path;
+	private List<Integer> drawCount= new ArrayList<Integer>();
+	private int hintCount;
 	
 	public GameController(Game game) {
 		this.game = game;
@@ -76,11 +79,19 @@ public class GameController {
 	private Label movesLeft; //show remain moves
 	@FXML
 	private TextField textField ; //input a letter
-
+	
+	//modified
     public void initialize(){
 		System.out.println("in initialize");
 		
 		drawGallows();
+		textField.setPrefWidth(35);
+		textField.setFont(Font.font("Verdana", FontWeight.BOLD, 15));
+		//only display upper case letters
+		textField.setTextFormatter(new TextFormatter<>((change) -> {
+            change.setText(change.getText().toUpperCase());
+            return change;
+        }));
 		addTextBoxListener();
 		setUpStatusLabelBindings();
 		
@@ -90,6 +101,7 @@ public class GameController {
 		});
 	}
     
+    //modified
     //input letters and set labels
 	private void addTextBoxListener() {
 		textField.textProperty().addListener(new ChangeListener<String>() {
@@ -97,8 +109,8 @@ public class GameController {
 			public void changed(final ObservableValue<? extends String> ov, final String oldValue, final String newValue) {
 				//check if the input is a letter
 				if(newValue.length() > 0 && Character.isLetter(newValue.charAt(newValue.length()-1))) {
-					System.out.print("input: " + newValue);					
-					game.makeMove(newValue.substring(newValue.length()-1));
+					System.out.print("input: " + newValue);
+					game.makeMove(newValue.toLowerCase().substring(newValue.length()-1));
 					//if lose (no move left), display the target word
 					if(game.getRemainMoves() == 0 ) {
 						targetWord.textProperty().bind(Bindings.format("%s", "Target: " + game.getAnswer().toUpperCase() + ". Your answer: " + game.getCurrentAnswer().toUpperCase()));
@@ -128,11 +140,12 @@ public class GameController {
 		});
 	}
 	
+	//modified
 	//display initial game status
 	private void setUpStatusLabelBindings() {
 		System.out.println("in setUpStatusLabelBindings");
 		statusLabel.textProperty().bind(Bindings.format("%s", game.gameStatusProperty()));
-		enterALetterLabel.textProperty().bind(Bindings.format("%s", "Enter a letter:"));
+		enterALetterLabel.textProperty().bind(Bindings.format("%s", "Enter a letter: "));
 		targetWord.textProperty().bind(Bindings.format("%s", "Target: " + game.getCurrentAnswer()));
 		missedLetters.textProperty().bind(Bindings.format("%s", "Missed Letters: "));
 		movesLeft.textProperty().bind(Bindings.format("%s", "You have " + game.getRemainMoves() + " moves left."));
@@ -147,7 +160,8 @@ public class GameController {
 		*/
 	}
 
-	//build gallows
+	//new method
+	//draw gallows
 	private void drawGallows() {
 		 
 		 //bottom line
@@ -178,6 +192,7 @@ public class GameController {
          board.getChildren().addAll(gallows1, gallows2, gallows3, gallows4, rope);
 	}
 	
+	//new method
 	//draw parts of Hanging man based on number of wrong moves
     private void drawHangman(int moves) {
     	if(!drawCount.contains(moves)) {
@@ -194,6 +209,8 @@ public class GameController {
     	}
     }
     
+    //new method
+    //hanging animation    
     private void animateHang() {
     	//change positions of head and arms to hang positions
     	head.setVisible(false);
@@ -229,10 +246,6 @@ public class GameController {
         
         //set move path
         Line line = new Line(rope.getEndX(), rope.getEndY() -2 * WIDTH * 0.06, rope.getEndX(), rope.getEndY() - WIDTH * 0.06);
-/*      line.setFill(Color.TRANSPARENT);
-        line.setStroke(Color.BLACK);
-        board.getChildren().add(line);
-        line.setStrokeWidth(2);*/
         path = new PathTransition(Duration.seconds(2), line, head);
         path.setCycleCount(Transition.INDEFINITE);
         path.setAutoReverse(true);
@@ -240,18 +253,22 @@ public class GameController {
         path.play();
     }
 	
+    //new methods
+    //draw hangman
 	private void drawHead() {
         double radius = WIDTH * 0.06;
         //original head
         head = new Circle(rope.getEndX(), rope.getEndY() - radius, radius, Color.WHITE);
         head.setStroke(Color.BLACK);
         head.setStrokeWidth(3);
+        head.setFill(Color.LINEN);
         board.getChildren().add(head);
         
         //head after losing a game
         headHang = new Circle(rope.getEndX() + radius, rope.getEndY(), radius, Color.WHITE);
         headHang.setStroke(Color.BLACK);
         headHang.setStrokeWidth(3);
+        headHang.setFill(Color.LINEN);
         headHang.setVisible(false); //default, not visible
         board.getChildren().add(headHang);
      }
@@ -322,6 +339,7 @@ public class GameController {
      }
 		
 	@FXML
+	//modified
 	//reset everything and restart game
 	private void newHangman(){
 		if(game.getMove() == 7) {
@@ -331,6 +349,7 @@ public class GameController {
 		board.getChildren().clear();
 		drawCount= new ArrayList<Integer>();
 		textField.clear();
+		hintCount = 0;
 		drawGallows();
 		setUpStatusLabelBindings();	
 	}
@@ -341,6 +360,25 @@ public class GameController {
 		board.getScene().getWindow().hide();
 	}
 	
+	@FXML
+	//new method
+	//hint, only allow once
+	private void hint() {
+		if(game.gameEnd()) {return;}
+		if(hintCount == 0) {
+			textField.setText(game.hint());
+			hintCount++;
+		}
+		else {
+			Alert alert = new Alert(AlertType.WARNING);
+			alert.setTitle("Error");
+			alert.setHeaderText(null);
+			alert.setContentText("You are only allowed to use \"Hint\" once!");
+			alert.showAndWait();
+		}
+	}
+	
+	//new method
     //add key listener, ENTER - restart game after finish, Other keys - clear textField 
 	public void sendKeyCode(KeyCode key){
         if (key == KeyCode.ENTER && !game.getPlayingStatus()) {

@@ -9,10 +9,27 @@ package hangman;
  * Hangman game
  * The user guesses a word by entering one letter at a time. 
  * If the user misses seven times, a hanging man hangs. 
+ * User can use hint button once.
  * Once a word is finished, the user can press the Enter key to start a new game.
  * 
- * Modified by Yixin Chen
- * Mar 12, 2018
+ * Contributions:
+ * 1. Fix bugs
+ * 		--Kyle Rickets, Rallante Hunt, Xiaohan Yang and Yixin Chen
+ * 
+ * 2. Change appearance (color, look and feel)
+ * 		-- Rallante Hunt, Kyle Rickets and Xiaohan Yang
+ * 
+ * 3. Add additional box which shows user input 
+ * 		-- Xiaohan Yang
+ * 
+ * 4. Fix stick figure (draw section of figure on incorrect responses) #of steps and figure must lineup
+ * 		--Yixin Chen
+ * 
+ * 5. Make sure user can start a new game
+ * 		--Kyle Rickets and Rallante Hunt
+ * 
+ * 6. Read in a dictionary and randomly pick a starting word 
+ * 		-- Yixin Chen
  */
 
 import java.io.IOException;
